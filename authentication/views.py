@@ -16,6 +16,7 @@ def login(req):
                 return redirect(to="home")
             messages.error(req,"Incorrect Username and Password")
             return redirect(to="login") 
+    # if user is not None: 
     messages.info(req, 'Please fill username and password')
     return render(req, 'login.html')
 

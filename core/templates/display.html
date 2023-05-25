@@ -2,22 +2,105 @@
 <!-- {% load static %} -->
 {% block content %}
 
-<h1>
-    This is display.html
-</h1>
+<h2 class="d-flex  my-4">
+    Attendance List
+</h2>
 
-<form action="" method="post">
+<div class="m-1 d-flex justify-content-end align-items-center">
+    <label class="text-black m-md-2 ">Date:</label>
+   <small> <input  type="text" value="{{currentdate}}"  disabled id=""> </small>
+</div>
+<div class="row my-2">
+    <div class="col-md-6">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="m-1">
+            <label class="text-muted m-md-2"><small>Professor Name:</small></label>
+            <small> <input  type="text" value='{{mentor.name}}'  disabled id=""></small>
+
+        </div>
+
+    </div>
+
+    <div class="ml-1">
+        <label class="text-muted m-md-2"><small>Phone Number:</small></label>
+        <small> <input  type="number" value="{{mentor.phone}}"  disabled id=""></small>
+
+    </div>
+    <div class="m-1">
+        <div class="form-group">
+        <label class="text-muted m-md-2"><small>Email:</small></label>
+       <small> <input  type="email" value="{{mentor.email}}"  disabled id=""></small>
+    </div>
+    </div>
+</div>
+<div class="col-md-6">
+    
+    <div class="m-1">
+        <label class="text-muted m-md-2"><small>Subject:</small></label>
+        <small> <input  type="text" value="{{mentor.subject}}"  disabled id=""></small>
+
+    </div>
+    <div class="ml-1">
+        <label class="text-muted m-md-2"><small>Course:</small></label>
+        <small> <input  type="text" value="{{mentor.course.course}}"  disabled id=""></small>
+
+    </div>
+  </div>
+
+  <!-- <div class="col-md-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="m-1 mx-5">
+            <label class="text-black  ">Date:</label>
+            <input  type="text" value="{{currentdate}}"  disabled id="">
+        </div>
+    </div>
+  </div> -->
+
+</div>
+
+
+<table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Profile Pic</th>
+        <th scope="col">Enrolment No</th>
+        <th scope="col-4">Name</th>
+        <th scope="col">Phone</th>
+        <th  scope='col'>Status</th>
+        <th scope="col">Entry time</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for student in students  %}
+        
+      <tr>
+        {% comment %} <th scope="row">-</th> {% endcomment %}
+        <td> <img width="200" height="120"  src="{{student.image.url}}" ></td>
+        <td>{{student.enrollmentno}}</td>
+        <td> {{student.name}} </td>
+        <td>{{student.phone}} </td>
+        <td> {% if student.is_present  %} Present {% else %} Absent{% endif %} </td>
+        <td>{{student.updated}}</td>
+    </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="d-xl-flex gap-2 justify-content-lg-end d-lg-none ">
+    <!-- <button class="btn btn-warning fw-bold me-md-2" >Download Report</button>  -->
+     <button class="btn btn-warning fw-bold me-md-2" onclick="printpage()">Print Report</button> 
+    <a  href="media/csv/{{currentdate}}.csv" download> <button class="btn btn-success fw-bold" type="submit">Download Report</button></a> 
+</div> 
+{% comment %} <form action="" method="post">
         {% csrf_token %}
         <select name="coursef" >
             <option value selected>---------</option>
             <p>course</p>
-            {% comment %} {{ i }} {% endcomment %}
             {% for course in courses %}
              <option   value="{{course.course}}"> {{course.course}}</option>
             {% endfor %}
         </select>
 
         <button type="submit">Submit</button>
-</form>
+</form> {% endcomment %}
 
 {% endblock content %}

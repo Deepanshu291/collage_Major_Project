@@ -8,7 +8,6 @@ import numpy as np
 import csv
 import pandas as pd
 from datetime import datetime
-from FDAS.settings import BASE_DIR
 
 
 # Create your views here.
@@ -23,12 +22,24 @@ from FDAS.settings import BASE_DIR
 #             return redirect('home')
 #     context = {'form': form}
 #     return render(req, 'index.html',context)
+
+def addstudent(req):
+    form = StudentForm
+    if req.method == 'POST':
+        form = StudentForm(req.POST, req.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    context = {'form':form}
+    return render(req,'addstudent.html', context)
+
 @login_required(redirect_field_name='login')
 def home(req):
         # mentor = ProfessorDetail.objects.get(user= req.user) 
-        # print(mentor)
-        # course = mentor.course.course
-        # students = StudentDetail.objects.filter(course=course)
+        # # print(mentor)
+        # coursem = mentor.course.course
+        # print(coursem)
+        # students = StudentDetail.objects.filter(course=coursem)
         # df = pd.DataFrame(students)
         # return HttpResponse(df.to_html())
         course = Course.objects.all()
@@ -36,10 +47,8 @@ def home(req):
             coursef = req.POST['coursef']
             print(coursef)
             students = StudentDetail.objects.filter(course=coursef)
-            # df = pd.DataFrame(students)
-            # table = df.to_html(classes='table table-striped table-hover')
             print(students)
-            context = {'courses':course,'students':students,'dir':BASE_DIR}
+            context = {'courses':course,'students':students.order_by('enrollmentno')}
             return render(req,'index.html',context)
         context = {'courses':course}
         return render(req, 'index.html', context)
@@ -49,15 +58,27 @@ def home(req):
 
 @login_required(redirect_field_name='login')
 def display(req):
-    course = Course.objects.all()
-    # form = CourseForm
-    if req.method == 'POST':
-        coursef = req.POST['coursef']
-        print(coursef)
-        students = StudentDetail.objects.filter(course=coursef)
-        df = pd.DataFrame(students)
-        return HttpResponse(df.to_html())
-    context = {'courses': course}
+    now = datetime.now()
+    currentdate =  now.strftime("%d-%b-%Y")
+    f =open('media/csv/'+currentdate+'.csv','w+',newline='')
+    csvwriter = csv.writer(f)
+    csvwriter.writerow(['Roll no', 'Name', 'Mobile no', 'Status','Entry Time','Date'])
+    # data=[]
+    students = StudentDetail.objects.order_by('enrollmentno')
+    for student in students:
+        status = 'Present' if student.is_present else 'Absent'
+        csvwriter.writerow([student.enrollmentno, student.name,student.phone,status,student.updated.strftime('%X'), student.updated.strftime('%d-%b-%Y')])
+        # data += [[ student.name,student.phone, status, student.updated.strftime('%X')]]
+    # df = pd.DataFrame(data, columns=['Name','Mobile no','Status','Entry time'])
+    # df.to_csv('test.csv')
+    mentor = ProfessorDetail.objects.get(user= req.user)
+    coursem = mentor.course.course
+    print(currentdate)
+    students = StudentDetail.objects.filter(course=coursem)
+    fileurl =f"media/csv/{currentdate}.csv"
+    print(fileurl)
+    
+    context = {'students':students.order_by('enrollmentno'), 'mentor':mentor,'currentdate':currentdate}
     return render(req,'display.html', context)
 
 
@@ -65,16 +86,16 @@ def display(req):
 def attendance(req):
     now = datetime.now()
     currentdate =  now.strftime("%d-%b-%Y")
-    f =open(currentdate+'.csv','w+',newline='')
+    f =open('media/csv/'+currentdate+'.csv','w+',newline='')
     csvwriter = csv.writer(f)
-    csvwriter.writerow(['Roll no', 'Name', 'Mobile no', 'Status','Entry Time'])
-    
-    students = StudentDetail.objects.all()
+    csvwriter.writerow(['Roll no', 'Name', 'Mobile no', 'Status','Entry Time','Date'])
+    data=[]
+    students = StudentDetail.objects.order_by('enrollmentno')
     for student in students:
         status = 'Present' if student.is_present else 'Absent'
         # print(status)
-        csvwriter.writerow([student.enrollmentno, student.name,student.phone,status, student.updated.strftime('%X')])
-        data = [[ student.name,student.phone, status, student.updated.strftime('%X')]]
+        csvwriter.writerow([student.enrollmentno, student.name,student.phone,status,student.updated.strftime('%X'), student.updated.strftime('%d-%b-%Y')])
+        data += [[ student.name,student.phone, status, student.updated.strftime('%X')]]
     
     df = pd.DataFrame(data, columns=['Name','Mobile no','Status','Entry time'])
     df.to_csv('test.csv')
@@ -82,7 +103,10 @@ def attendance(req):
     # context = {
     #     data : df.to_html()
     # }
-    return HttpResponse(df.to_html())
+    # table =df.to_html(classes=["table"," table-striped ","table-hover"])
+    # return HttpResponse()
+    context = {'students':students}
+    return render(req,'display.html',context)
 
 
 
@@ -103,10 +127,10 @@ def scan(req):
     face_names = []
     process=True 
     
-    now = datetime.now()
-    currentdate =  now.strftime("%d-%m-%y")
-    f =open(currentdate+'.csv','w+',newline='')
-    csvwriter = csv.writer(f)
+    # now = datetime.now()
+    # currentdate =  now.strftime("%d-%m-%y")
+    # f =open(currentdate+'.csv','w+',newline='')
+    # csvwriter = csv.writer(f)
     
     videof = cv2.VideoCapture(0)
     
@@ -114,8 +138,8 @@ def scan(req):
         _,frame = videof.read()
         small_frame = cv2.resize(frame,(0,0),fx=0.25,fy=0.25)
         rgb_sf = cv2.cvtColor(small_frame,cv2.COLOR_BGR2RGB)
-        
-        if process:
+        try:
+         if process:
             face_locations = fc.face_locations(rgb_sf)
             face_encodings = fc.face_encodings(rgb_sf,face_locations)
             face_names =[]
@@ -133,7 +157,8 @@ def scan(req):
                 else: 
                         student.is_present = True
                         student.save()
-        
+        except:
+            pass
         process = not process
         for (top, right, bottom, left), name in zip(face_locations, face_names):
             top *= 4
@@ -153,10 +178,11 @@ def scan(req):
         # cv2.putText(frame,'to stop attendence press q', (100,10),fontScale=1)
         if cv2.waitKey(10) == ord('q'):
               break
+    
     videof.release()
     cv2.destroyAllWindows()
-    f.close()
-    return HttpResponse('scaner closed')
+    # f.close()
+    return redirect('display')
 
 
 

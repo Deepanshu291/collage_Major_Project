@@ -32,7 +32,7 @@
         
       <tr>
         <th scope="row">-</th>
-        <td> <img src="{{dir}}{{student.image.url}}" ></td>
+        <td> <img width="200"  src="{{student.image.url}}" ></td>
         <td>{{student.enrollmentno}}</td>
         <td> {{student.name}} </td>
         <td>{{student.phone}} </td>
@@ -41,6 +41,11 @@
       {% endfor %}
     </tbody>
   </table>
+  {% comment %} {% if students. %}{% endif %} {% endcomment %}
+  <div class="d-flex gap-2 justify-content-md-end">
+    <a href=" {% url 'display' %}"> <button class="btn btn-warning fw-bold me-md-2" type="submit">View Report</button> </a>
+    <a href="{% url 'addstd' %}"> <button class="btn btn-success fw-bold" type="submit">Add Student</button></a> 
+</div> 
   {% comment %} {% endif %} {% endcomment %}
 <!-- <form method="POST" action="" enctype='multipart/form-data'>
     {% csrf_token %}

@@ -5,8 +5,8 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <a class="navbar-brand me-auto" href="#">Welcome, {{user.first_name }} {{user.last_name}}</a>
-            <h1 class=" me-auto" >FDAS</h1>
+            <a class="navbar-brand me-auto" href="/">Welcome, {{user.first_name }} {{user.last_name}}</a>
+             <h1 class=" me-auto" >FDAS</h1>
             {% comment %} <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="#">Home</a>
@@ -20,9 +20,9 @@
             </ul> {% endcomment %}
             
          
-             <div class="d-flex">
-                <a href=" {% url 'scan_face' %}"> <button class="btn btn-success mx-4" type="submit">Add Student</button> </a>
-                <a href="{% url 'logout' %}"> <button class="btn btn-danger" type="submit">Logout</button></a> 
+             <div class="d-flex gap-3">
+                <a href=" {% url 'scan_face' %}"> <button class="btn btn-primary me-md-2 fw-bold" >Take Attendance </button> </a>
+                <a href="{% url 'logout' %}"> <button class="btn btn-danger fw-bold " type="submit">Logout</button></a> 
             </div> 
           </div>
         </div>

@@ -23,11 +23,11 @@ class StudentDetail(models.Model):
     phone = models.BigIntegerField()
     email = models.EmailField(("Email"), max_length=254)
     course = models.ForeignKey(Course,on_delete=models.CASCADE, null=True)
-    is_present = models.BooleanField(("Present"), default=False)
+    is_present = models.BooleanField(("Present"), default=False,unique_for_date=True,editable=True)
     image = models.ImageField(upload_to='profilepic')
     # ecoding = models.AutoField()
-    date = models.DateField("Date", auto_now_add=True)
-    updated = models.DateTimeField( auto_now=True)
+    date = models.DateField("Date",auto_now_add=True)
+    updated = models.DateTimeField( auto_now=True, )
     def __str__(self):
         return self.name 
     
@@ -37,6 +37,7 @@ class ProfessorDetail(models.Model):
     name = models.CharField(("Mentor name"), max_length=50)
     phone = models.BigIntegerField(("Phone no"))
     subject = models.CharField('Subject', max_length=50)
+    email = models.EmailField('Email', max_length=254)
     
     def __str__ (self):
         return self.name 
